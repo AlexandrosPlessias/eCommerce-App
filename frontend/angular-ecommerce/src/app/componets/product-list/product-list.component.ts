@@ -21,7 +21,6 @@ export class ProductListComponent implements OnInit {
     this.route.paramMap
       .subscribe( () => {
         this.listProducts()
-
       }
     )
   }
@@ -40,6 +39,7 @@ export class ProductListComponent implements OnInit {
     this.productService
       .getProductList(this.currentCategoryId)
       .subscribe(data => {
+        // console.log('ProductS= ', JSON.stringify(data));
         this.products = data;
       });
   }
