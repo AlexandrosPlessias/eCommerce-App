@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute, Router} from "@angular/router";
 
 @Component({
@@ -8,15 +8,16 @@ import {ActivatedRoute, Router} from "@angular/router";
 })
 export class SearchComponent implements OnInit {
 
-  private keyword: string = '';
+  @ViewChild('mySearchInput', { static: true }) keyword: ElementRef;
 
   constructor(private router: Router) { }
 
   ngOnInit(): void {
   }
 
-  doSearch(keyword: string) {
-    // console.log('Search keyword:' + keyword);
-    this.router.navigateByUrl('/search/' + keyword).then(r => {return r;});
+  doSearch() {
+    // console.log('Search keyword:' + this.keyword);
+    this.router.navigateByUrl('/search/' + this.keyword.nativeElement.value).then(r => {return r;});
+    this.keyword.nativeElement.value = "";
   }
 }
