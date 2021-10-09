@@ -32,6 +32,11 @@ export class ProductService {
     return this.httpClient.get<GetResponse>(searchUrl).pipe(map(response => response._embedded.products));
   }
 
+  getProduct(theProductId: string): Observable<Product> {
+    const getProductUrl = this.productUrl + '/' + theProductId;
+    return this.httpClient.get<Product>(getProductUrl);
+  }
+
   getProductCategories(): Observable<ProductCategory[]> {
     return this.httpClient.get<GetResponseProductCategory>(this.categoryUrl).pipe(
       map(response => response._embedded.productCategory)
