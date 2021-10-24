@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {ProductService} from "../../services/product.service";
 import {Product} from "../../common/product";
 import {ActivatedRoute} from "@angular/router";
@@ -10,10 +10,18 @@ import {ActivatedRoute} from "@angular/router";
 })
 export class ProductListComponent implements OnInit {
 
+  // General page properties
   products: Product[];
   currentCategoryId: number;
-  currentPageTitle: string;
   searchMode: boolean;
+  currentPageTitle: string;
+
+  // Pagination properties
+  thePageNumber: number = 1;
+  thePageSize: number = 5;
+  theTotalEmelents: number = 0;
+  previousCategoryId: number = 1;
+  previousSearchKeyword: string | null = null;
 
   // Injection of ProductService
   constructor(private productService: ProductService,
@@ -54,25 +62,52 @@ export class ProductListComponent implements OnInit {
       this.currentCategoryId = 1;
     }
 
+    // If category changes
+    if (this.previousCategoryId != this.currentCategoryId){
+      this.previousCategoryId = this.currentCategoryId;
+      this.thePageNumber = 1;
+    }
+
     this.productService
-      .getProductList(this.currentCategoryId)
-      .subscribe(data => {
-        // console.log('ProductS= ', JSON.stringify(data));
-        this.products = data;
-      });
+      .getProductListPaginate(
+        this.thePageNumber - 1, // Spring based page
+        this.thePageSize,
+        this.currentCategoryId)
+      .subscribe(this.processPaginateResult());
   }
 
   handleSearchProducts() {
     const searchKeyword = this.route.snapshot.paramMap.get('keyword');
+
+    // If search Keyword changes
+    if (this.previousSearchKeyword != searchKeyword){
+      this.previousSearchKeyword = searchKeyword;
+      this.thePageNumber = 1;
+    }
+
     if (searchKeyword) {
       this.currentPageTitle = 'Search: ' + searchKeyword;
       this.productService
-        .searchProducts(searchKeyword)
-        .subscribe(data => {
-          // console.log('ProductS= ', JSON.stringify(data));
-          this.products = data;
-        });
+        .searchProductsPaginate(
+          this.thePageNumber - 1, // Spring based page
+          this.thePageSize,
+          searchKeyword)
+        .subscribe(this.processPaginateResult());
     }
   }
 
+  private processPaginateResult() {
+    return (data: { _embedded: { products: Product[]; }; page: { number: number; size: number; totalElements: number; }; }) => {
+      this.products = data._embedded.products;
+      this.thePageNumber = data.page.number + 1; // Angular based page
+      this.thePageSize = data.page.size;
+      this.theTotalEmelents = data.page.totalElements;
+    }
+  }
+
+  updatePageSize(pageSize: number) {
+    this.thePageSize = pageSize;
+    this.thePageNumber = 1;
+    this.listProducts();
+  }
 }
