@@ -2,10 +2,12 @@ import {Component, OnInit} from '@angular/core';
 import {ProductService} from "../../services/product.service";
 import {Product} from "../../common/product";
 import {ActivatedRoute} from "@angular/router";
+import {CartService} from "../../services/cart.service";
+import {CartItem} from "../../common/cart-item";
 
 @Component({
   selector: 'app-product-list',
-  templateUrl: './product-list-grid.component.html',
+  templateUrl: './product-list.component.html',
   styleUrls: ['./product-list.component.css']
 })
 export class ProductListComponent implements OnInit {
@@ -25,6 +27,7 @@ export class ProductListComponent implements OnInit {
 
   // Injection of ProductService
   constructor(private productService: ProductService,
+              private cartService: CartService,
               private route: ActivatedRoute) { }
 
   ngOnInit(): void {
@@ -110,4 +113,11 @@ export class ProductListComponent implements OnInit {
     this.thePageNumber = 1;
     this.listProducts();
   }
+
+  onAddToCart(tempProduct: Product) {
+    // console.log("Add to cart: ",tempProduct.name, tempProduct.unit_price);
+    const theCartItem: CartItem = new CartItem(tempProduct);
+    this.cartService.addToCart(theCartItem);
+  }
+
 }
