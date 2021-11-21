@@ -16,7 +16,7 @@ export class CartService {
 
   addToCart(theCartItem: CartItem){
     // Check if we already have the item in our cart
-    let theCartItemIndex = this.cartItems.findIndex((
+    const theCartItemIndex = this.cartItems.findIndex((
         tempCartItem => tempCartItem.id == theCartItem.id
       ));
 
@@ -27,6 +27,28 @@ export class CartService {
       this.cartItems.push(theCartItem);
     }
     this.computeCartTotals();
+  }
+
+  decrementQuantity(theCartItem: CartItem){
+    theCartItem.quantity--;
+    if (theCartItem.quantity ===0) {
+      this.remove(theCartItem);
+    } else {
+      this.computeCartTotals();
+    }
+  }
+
+  remove(theCartItem: CartItem){
+    // get item index.
+    const theCartItemIndex = this.cartItems.findIndex((
+      tempCartItem => tempCartItem.id == theCartItem.id
+    ));
+
+    // if exist remove the item.
+    if (theCartItemIndex >= 0){
+        this.cartItems.splice(theCartItemIndex, 1);
+        this.computeCartTotals();
+    }
   }
 
   computeCartTotals() {
